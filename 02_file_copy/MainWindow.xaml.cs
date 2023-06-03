@@ -4,6 +4,8 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using PropertyChanged;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -31,7 +33,7 @@ namespace _02_file_copy
             InitializeComponent();
             viewModel = new ViewModel()
             {
-                Source = @"C:\Users\helen\Desktop\Заняття\0_1.txt",
+                Source = @"C:\Users\helen\Downloads\10GB.bin",
                 Destination = @"C:\Users\helen\Desktop\TestFolder",
                 Progress = 0
             };
@@ -48,15 +50,19 @@ namespace _02_file_copy
             //File.Copy(Source, destFilePath, true);
             //MessageBox.Show("Complete!");
             //2
-            await CopyFileAsync(viewModel.Source, destFilePath);
+            CopyProcessInfo info = new CopyProcessInfo(filename);
+           
+            viewModel.AddProcess(info);
+            await CopyFileAsync(viewModel.Source, destFilePath, info);
+            info.Percentage = 100;
             MessageBox.Show("Complete!");
-            //viewModel.Progress = 0;
-            
-            #endregion        
+            //viewModel.Progress = 0;            
+            #endregion      
 
         }
-        private Task CopyFileAsync(string src, string dest)
+        private Task CopyFileAsync(string src, string dest, CopyProcessInfo info)
         {
+            #region Type 1 Type 2
             /*
             return Task.Run(() =>
             {
@@ -79,12 +85,20 @@ namespace _02_file_copy
                 } while (bytes > 0);              
             });
             */
+            #endregion
             return FileTransferManager.CopyWithProgressAsync(src, dest, (progress) =>
             {
-                viewModel.Progress = progress.Percentage;
+                //viewModel.Progress = progress.Percentage;
+                info.Percentage = progress.Percentage;
+                info.BytesPerSecond = progress.BytesPerSecond;
+           
             }, false);
            
         }
+        //private void ProgressHandler(TransferProgress p)
+        //{
+        //    viewModel.Progress = p.Percentage;
+        //}
 
             private void OpenSourceBtn_Click(object sender, RoutedEventArgs e)
             {
@@ -109,11 +123,34 @@ namespace _02_file_copy
     [AddINotifyPropertyChangedInterface]
     class ViewModel
     {
+        private ObservableCollection<CopyProcessInfo> processes ;
         public string Source { get; set; }
         public string Destination { get; set; }
         public double Progress { get; set; }
         public bool IsWaiting => Progress == 0;
+        public IEnumerable<CopyProcessInfo> Processes => processes;
+        public ViewModel()
+        {
+            processes = new ObservableCollection<CopyProcessInfo>();
+        }
+        public void AddProcess(CopyProcessInfo info)
+        {
+            processes.Add(info);
+        }
 
     }
+    [AddINotifyPropertyChangedInterface]
+    class CopyProcessInfo
+    {
+        public string FileName { get; set; }
+        public double Percentage { get; set; }
+        public int PercentageInt => (int)Percentage;
+        public double BytesPerSecond { get; set; }
+        public double MegaBytesPerSecond => Math.Round(BytesPerSecond / 1024 / 1024 , 1);//Mb/s
+        public CopyProcessInfo(string fileName)
+        {
+            this.FileName = fileName;
+        }
 
+    }
 }

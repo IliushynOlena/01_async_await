@@ -5,41 +5,81 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_02_file_copy"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance local:ViewModel, IsDesignTimeCreatable=True}"
+       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+     TextElement.FontWeight="Regular"
+     TextElement.FontSize="13"
+     TextOptions.TextFormattingMode="Ideal"
+     TextOptions.TextRenderingMode="Auto"
+     Background="{DynamicResource MaterialDesignPaper}"
+     FontFamily="{DynamicResource MaterialDesignFont}"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
         <Style TargetType="{x:Type Button}">
             <Setter Property="Padding" Value="10"></Setter>
-            <Setter Property="Margin" Value="5"></Setter>            
+            <Setter Property="Margin" Value="5"></Setter>
         </Style>
         <Style TargetType="{x:Type TextBox}">
             <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
             <Setter Property="Margin" Value="5"></Setter>
         </Style>
     </Window.Resources>
-    <DockPanel LastChildFill="False">
-    <Grid Margin="5" DockPanel.Dock="Top">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-        </Grid.RowDefinitions>
-        <Label>From : </Label>
-        <TextBox Text="{Binding Source}"  Grid.Column="1"></TextBox>
-        <Label Grid.Row="1">To : </Label>
-        <TextBox Text="{Binding Destination}" Grid.Row="1" Grid.Column="1"></TextBox>
-        <Button Click="OpenSourceBtn_Click" Grid.Column="2" >Browse</Button>
-        <Button Click="OpenDestBtn_Click" Grid.Column="2" Grid.Row="1">Browse</Button>
+    <DockPanel >
+        <Grid Margin="5" DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Label>From :</Label>
+            <TextBox Text="{Binding Source}"  Grid.Column="1"></TextBox>
+            <Label Grid.Row="1">To :</Label>
+            <TextBox Text="{Binding Destination}" Grid.Row="1" Grid.Column="1"></TextBox>
+            <Button Click="OpenSourceBtn_Click" Grid.Column="2" >Browse</Button>
+            <Button Click="OpenDestBtn_Click" Grid.Column="2" Grid.Row="1">Browse</Button>
 
-    </Grid>
-    <Button DockPanel.Dock="Top" Click="CopyButton_Click">Copy</Button>
+        </Grid>
+        <Button DockPanel.Dock="Top" Click="CopyButton_Click">Copy</Button>
         <ProgressBar Value="{Binding Progress}" DockPanel.Dock="Bottom" IsIndeterminate="{Binding IsWaiting}"  Height="10" ></ProgressBar>
-        
+        <ListBox ItemsSource="{Binding Processes}" 
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                 HorizontalContentAlignment="Stretch">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <ListBoxItem >
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" ></ColumnDefinition>
+                                <ColumnDefinition Width="Auto" ></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto" ></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock TextTrimming="CharacterEllipsis" 
+                                       TextWrapping="NoWrap"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding FileName}"
+                                       MaxWidth="200"
+                                       ></TextBlock>
+                            <TextBlock Grid.Column="1" MaxWidth="150">Speed : <Run 
+                                Text="{Binding MegaBytesPerSecond, Mode=OneWay}"></Run>  Mb/s</TextBlock>
+                            <TextBlock Grid.Column="3" MaxWidth="100"> 
+                                <Run Text="{Binding PercentageInt, Mode=OneWay}"></Run> %</TextBlock>
+                            <ProgressBar Grid.Column="2"  Height="10" Margin="4" 
+                                         Value="{Binding Percentage}"></ProgressBar>
+                        </Grid>
+                    </ListBoxItem>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+        </ListBox>
     </DockPanel>
 </Window>
